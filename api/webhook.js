@@ -1,4 +1,10 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const QRCode = require('qrcode');
+const airtable = require('airtable');
+
+// Configurar Airtable
+airtable.configure({ apiKey: process.env.AIRTABLE_API_KEY });
+const base = airtable.base(process.env.AIRTABLE_BASE_ID);
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -45,45 +51,84 @@ async function handlePaymentSucceeded(paymentIntent) {
   console.log('✅ Pago completado:', paymentIntent.id);
   console.log('Monto:', paymentIntent.amount / 100, paymentIntent.currency.toUpperCase());
   
-  // Aquí puedes guardar la información del pago en tu base de datos
-  // Por ejemplo: guardar orden, actualizar usuario, enviar email, etc.
+  const metadata = paymentIntent.metadata;
   
-  // Ejemplo:
-  // await saveOrderToDatabase({
-  //   stripePaymentId: paymentIntent.id,
-  //   amount: paymentIntent.amount / 100,
-  //   currency: paymentIntent.currency,
-  //   status: 'completed',
-  //   metadata: paymentIntent.metadata
-  // });
+  if (metadata.petId && metadata.serviceType) {
+    try {
+      // Actualizar registro en Airtable
+      const petRecord = await base('Mascotas').find(metadata.petId);
+      
+      // Generar código QR único para la transacción
+      const qrData = {
+        petId: metadata.petId,
+        service: metadata.serviceType,
+        stripePaymentId: paymentIntent.id,
+        timestamp: new Date().toISOString(),
+        amount: paymentIntent.amount / 100
+      };
+      
+      const qrCode = await QRCode.toDataURL(JSON.stringify(qrData));
+      
+      // Crear registro de servicio en Airtable
+      const serviceRecord = await base('Servicios').create({
+        'ID Mascota': [metadata.petId],
+        'Tipo de Servicio': metadata.serviceType,
+        'Estado del Pago': 'Completado',
+        'ID Stripe': paymentIntent.id,
+        'Código QR': [{ url: qrCode }],
+        'Monto': paymentIntent.amount / 100,
+        'Moneda': paymentIntent.currency.toUpperCase(),
+        'Fecha': new Date().toISOString(),
+        'Metadata': JSON.stringify(metadata)
+      });
+      
+      console.log('✅ Servicio registrado en Airtable:', serviceRecord.id);
+    } catch (err) {
+      console.error('Error actualizando Airtable:', err);
+    }
+  }
 }
 
 async function handlePaymentFailed(paymentIntent) {
   console.log('❌ Pago fallido:', paymentIntent.id);
   console.log('Razón:', paymentIntent.last_payment_error?.message);
   
-  // Aquí puedes registrar el pago fallido
-  // Por ejemplo: notificar al usuario, guardar intento fallido, etc.
+  const metadata = paymentIntent.metadata;
   
-  // Ejemplo:
-  // await logFailedPayment({
-  //   stripePaymentId: paymentIntent.id,
-  //   errorMessage: paymentIntent.last_payment_error?.message,
-  //   metadata: paymentIntent.metadata
-  // });
+  if (metadata.petId) {
+    try {
+      await base('Servicios').create({
+        'ID Mascota': [metadata.petId],
+        'Tipo de Servicio': metadata.serviceType || 'Desconocido',
+        'Estado del Pago': 'Fallido',
+        'ID Stripe': paymentIntent.id,
+        'Error': paymentIntent.last_payment_error?.message,
+        'Fecha': new Date().toISOString()
+      });
+    } catch (err) {
+      console.error('Error registrando pago fallido:', err);
+    }
+  }
 }
 
 async function handleRefund(charge) {
   console.log('💰 Reembolso procesado:', charge.id);
   console.log('Monto reembolsado:', charge.amount_refunded / 100, charge.currency.toUpperCase());
   
-  // Aquí puedes registrar el reembolso
-  // Por ejemplo: actualizar estado de orden, notificar usuario, etc.
-  
-  // Ejemplo:
-  // await updateOrderStatus({
-  //   stripePaymentId: charge.id,
-  //   status: 'refunded',
-  //   refundedAmount: charge.amount_refunded / 100
-  // });
+  // Actualizar estado en Airtable
+  try {
+    const records = await base('Servicios').select({
+      filterByFormula: `{ID Stripe} = '${charge.id}'`
+    }).firstPage();
+    
+    if (records.length > 0) {
+      await base('Servicios').update(records[0].id, {
+        'Estado del Pago': 'Reembolsado',
+        'Monto Reembolsado': charge.amount_refunded / 100
+      });
+      console.log('✅ Servicio actualizado a reembolsado');
+    }
+  } catch (err) {
+    console.error('Error actualizando reembolso:', err);
+  }
 }
