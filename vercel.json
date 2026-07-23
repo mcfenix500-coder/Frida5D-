@@ -6,23 +6,57 @@
       "use": "@vercel/node"
     },
     {
-      "src": "public/**",
-      "use": "@vercel/static"
+      "src": "pages/**/*.{js,jsx}",
+      "use": "@vercel/next"
     }
   ],
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
+      "src": "/api/webhook",
+      "dest": "/api/webhook",
+      "methods": ["POST"]
+    },
+    {
+      "src": "/api/qr-nfc(.*)",
+      "dest": "/api/qr-nfc"
+    },
+    {
+      "src": "/api/pets(.*)",
+      "dest": "/api/pets"
+    },
+    {
+      "src": "/api/payment(.*)",
+      "dest": "/api/payment"
     },
     {
       "src": "/(.*)",
-      "dest": "/public/$1"
+      "dest": "/pages/$1"
     }
   ],
   "env": {
+    "STRIPE_PUBLIC_KEY": "pk_live_51T2ZoZDHEOFYimqkHMDKoA6OyNZlcs9B4eCZk0tGmcbSoppfTYyEGio4gmtUhHaAT1Nj2PMgiU3je4DRQMFroup00tLB0dvXI",
     "STRIPE_SECRET_KEY": "@stripe_secret_key",
-    "STRIPE_PUBLIC_KEY": "@stripe_public_key",
-    "WEBHOOK_SECRET": "@webhook_secret"
+    "WEBHOOK_SECRET": "@webhook_secret",
+    "AIRTABLE_API_KEY": "@airtable_api_key",
+    "AIRTABLE_BASE_ID": "@airtable_base_id",
+    "NEXT_PUBLIC_STRIPE_PUBLIC_KEY": "pk_live_51T2ZoZDHEOFYimqkHMDKoA6OyNZlcs9B4eCZk0tGmcbSoppfTYyEGio4gmtUhHaAT1Nj2PMgiU3je4DRQMFroup00tLB0dvXI"
+  },
+  "functions": {
+    "api/webhook.js": {
+      "maxDuration": 60,
+      "memory": 1024
+    },
+    "api/qr-nfc.js": {
+      "maxDuration": 30,
+      "memory": 512
+    },
+    "api/pets.js": {
+      "maxDuration": 30,
+      "memory": 512
+    },
+    "api/payment.js": {
+      "maxDuration": 30,
+      "memory": 512
+    }
   }
 }
