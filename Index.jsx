@@ -1,21 +1,25 @@
-import React from 'react';
-import MicrositioCliente from './componentes/MicrositioClientejobs'; // o la ruta correcta de tu componente
+import React, { useState } from 'react';
+import MicrositioCliente from './componentes/MicrositioCliente';
 import QRNFCManager from './componentes/QRNFCManager';
 
-export default function Home() {
+export default function AppRouter() {
+  const [vistaActual, setVistaActual] = useState('cliente');
+
   return (
-    <main className="bg-black text-white min-h-screen p-8">
-      <h1 className="text-3xl font-bold text-purple-400 mb-6 text-center">Frida 5D - ABUNDANCIA Y BIENESTAR</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <section className="border border-purple-800 p-6 rounded-lg">
-          <h2 className="text-xl font-semibold mb-4 text-purple-300">Gestión de Accesos QR / NFC</h2>
-          <QRNFCManager />
-        </section>
-        <section className="border border-purple-800 p-6 rounded-lg">
-          <h2 className="text-xl font-semibold mb-4 text-purple-300">Pasarela de Pagos</h2>
-          <MicrositioCliente />
-        </section>
-      </div>
-    </main>
+    <div className="bg-black text-white min-h-screen">
+      <nav className="flex justify-around p-4 border-b border-purple-900 bg-neutral-900">
+        <button onClick={() => setVistaActual('cliente')} className={vistaActual === 'cliente' ? 'text-purple-400 font-bold' : 'text-gray-400'}>Cliente</button>
+        <button onClick={() => setVistaActual('terapeuta')} className={vistaActual === 'terapeuta' ? 'text-purple-400 font-bold' : 'text-gray-400'}>Terapeuta</button>
+        <button onClick={() => setVistaActual('afiliado')} className={vistaActual === 'afiliado' ? 'text-purple-400 font-bold' : 'text-gray-400'}>Negocio Afiliado</button>
+        <button onClick={() => setVistaActual('telemetria')} className={vistaActual === 'telemetria' ? 'text-purple-400 font-bold' : 'text-gray-400'}>Mi Telemetría</button>
+      </nav>
+
+      <main className="p-6">
+        {vistaActual === 'cliente' && <MicrositioCliente />}
+        {vistaActual === 'terapeuta' && <div className="p-4 text-purple-300 font-semibold">Vista exclusiva de Terapeutas - Servicios en camilla</div>}
+        {vistaActual === 'afiliado' && <div className="p-4 text-purple-300 font-semibold">Vista de Negocios Afiliados y control de Cashback</div>}
+        {vistaActual === 'telemetria' && <div className="p-4"><QRNFCManager /></div>}
+      </main>
+    </div>
   );
 }
