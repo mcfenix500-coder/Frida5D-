@@ -1,0 +1,15 @@
+import React, { useState } from 'react';
+
+export default function NegocioAfiliadoView() {
+  const [estado] = useState('conectado');
+
+  return (
+    <div style={{ background: '#050505', padding: '32px', borderRadius: '12px', border: '1px solid #d4af37', color: '#fff' }}>
+      <h2 style={{ color: '#d4af37', marginBottom: '16px' }}>Panel de Negocio Afiliado</h2>
+      <p style={{ color: '#aaa', fontSize: '1rem' }}>Control de comisiones, red de distribución y sucursales.</p>
+      <div style={{ marginTop: '20px', padding: '16px', background: '#111', borderRadius: '8px' }}>
+        <p style={{ margin: 0 }}>Estatus de red: <span style={{ color: '#4dff4d' }}>{estado}</span></p>
+      </div>
+    </div>
+  );
+}
