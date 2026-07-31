@@ -15,7 +15,7 @@ export function TagCreator({ petId, onTagCreated }) {
     setError(null);
 
     try {
-      const response = await fetch('https://hooks.zapier.com/hooks/catch/TU_WEBHOOK_AQUI', {
+      const response = await fetch('https://hooks.zapier.com/hooks/catch/28321665/462k4b2/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -57,3 +57,19 @@ export function TagCreator({ petId, onTagCreated }) {
         <option value="Bienestar">Wellness</option>
         <option value="Otro">Other</option>
       </select>
+      
+      <textarea
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+        placeholder="Description"
+        className="input"
+      />
+
+      {error && <p className="error">{error}</p>}
+
+      <button onClick={handleCreateTag} disabled={loading} className="btn">
+        {loading ? 'Creating...' : 'Create Tag'}
+      </button>
+    </div>
+  );
+}
