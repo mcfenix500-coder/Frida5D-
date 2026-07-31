@@ -57,23 +57,3 @@ export function TagCreator({ petId, onTagCreated }) {
         <option value="Bienestar">Wellness</option>
         <option value="Otro">Other</option>
       </select>
-
-      <textarea
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        placeholder="Description (optional)"
-        className="input"
-      />
-
-      {error && <div className="error">{error}</div>}
-
-      <button
-        onClick={handleCreateTag}
-        disabled={loading}
-        className="btn-primary"
-      >
-        {loading ? 'Sending...' : 'Create Tag'}
-      </button>
-    </div>
-  );
-}
