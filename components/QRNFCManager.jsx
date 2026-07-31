@@ -1,4 +1,4 @@
-// Componente para crear etiqueta
+// Component to create tag
 export function TagCreator({ petId, onTagCreated }) {
   const [serviceType, setServiceType] = useState('');
   const [description, setDescription] = useState('');
@@ -7,7 +7,7 @@ export function TagCreator({ petId, onTagCreated }) {
 
   const handleCreateTag = async () => {
     if (!serviceType) {
-      setError('Selecciona un tipo de servicio');
+      setError('Select a service type');
       return;
     }
 
@@ -25,7 +25,7 @@ export function TagCreator({ petId, onTagCreated }) {
         })
       });
 
-      if (!response.ok) throw new Error('Error creando etiqueta');
+      if (!response.ok) throw new Error('Error creating tag');
 
       const data = await response.json().catch(() => ({}));
       onTagCreated(data.tag || { serviceType, description });
@@ -40,28 +40,28 @@ export function TagCreator({ petId, onTagCreated }) {
 
   return (
     <div className="tag-creator">
-      <h3>Crear Nueva Etiqueta</h3>
+      <h3>Create New Tag</h3>
       
       <select
         value={serviceType}
         onChange={(e) => setServiceType(e.target.value)}
         className="input"
       >
-        <option value="">Selecciona tipo de servicio</option>
-        <option value="Vacunación">Vacunación</option>
-        <option value="Desparasitación">Desparasitación</option>
-        <option value="Baño">Baño</option>
-        <option value="Corte">Corte</option>
-        <option value="Veterinario">Consulta Veterinaria</option>
-        <option value="Cirugía">Cirugía</option>
-        <option value="Bienestar">Bienestar</option>
-        <option value="Otro">Otro</option>
+        <option value="">Select service type</option>
+        <option value="Vacunación">Vaccination</option>
+        <option value="Desparasitación">Deworming</option>
+        <option value="Baño">Bath</option>
+        <option value="Corte">Grooming</option>
+        <option value="Veterinario">Veterinary Consultation</option>
+        <option value="Cirugía">Surgery</option>
+        <option value="Bienestar">Wellness</option>
+        <option value="Otro">Other</option>
       </select>
 
       <textarea
         value={description}
         onChange={(e) => setDescription(e.target.value)}
-        placeholder="Descripción (opcional)"
+        placeholder="Description (optional)"
         className="input"
       />
 
@@ -72,7 +72,7 @@ export function TagCreator({ petId, onTagCreated }) {
         disabled={loading}
         className="btn-primary"
       >
-        {loading ? 'Enviando...' : 'Crear Etiqueta'}
+        {loading ? 'Sending...' : 'Create Tag'}
       </button>
     </div>
   );
